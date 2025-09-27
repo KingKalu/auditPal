@@ -39,6 +39,7 @@ export const registerUserController = asyncHandler(
 
     return res.status(HTTPSTATUS.CREATED).json({
       message: "User created successfully",
+      user,
     });
   }
 );

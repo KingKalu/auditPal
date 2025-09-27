@@ -90,9 +90,9 @@ export const registerUserService = async (body: {
     });
     await account.save({ session });
 
-    const { otp, otpExpires } = await sendOtpEmail(email, firstName);
-    savedUser.otp = otp;
-    savedUser.otpExpires = otpExpires;
+    // const { otp, otpExpires } = await sendOtpEmail(email, firstName);
+    // savedUser.otp = otp;
+    // savedUser.otpExpires = otpExpires;
     const userData = await savedUser.save({ session });
 
     await session.commitTransaction();

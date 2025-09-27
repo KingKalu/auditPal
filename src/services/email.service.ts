@@ -4,7 +4,11 @@ import { transporter } from "../utils/mailer";
 import { generateOtp } from "../utils/generateOtp";
 
 export async function sendOtpEmail(to: string, username: string) {
-  const templatePath = path.join(__dirname, "../templates", "otp.html");
+  const templatePath = path.join(
+    __dirname,
+    "../templates",
+    "verify-email-otp.html"
+  );
   let template = fs.readFileSync(templatePath, "utf-8");
   const { otp, otpExpires } = generateOtp();
 

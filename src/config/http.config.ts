@@ -7,10 +7,12 @@ const httpConfig = () => ({
   // Client error responses
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
+
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   METHOD_NOT_ALLOWED: 405,
   CONFLICT: 409,
+  GONE: 410,
   UNPROCESSABLE_ENTITY: 422,
   TOO_MANY_REQUESTS: 429,
 
@@ -24,4 +26,4 @@ const httpConfig = () => ({
 
 export const HTTPSTATUS = httpConfig();
 
-export type HttpStatusCodeType = (typeof HTTPSTATUS) [keyof typeof HTTPSTATUS]
+export type HttpStatusCodeType = (typeof HTTPSTATUS)[keyof typeof HTTPSTATUS];

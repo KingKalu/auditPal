@@ -5,7 +5,11 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { config } from "./app.config";
 import { NotFoundException } from "../utils/appError";
 import { ProviderEnum } from "../enums/account-provider.enum";
-import { loginOrCreateAccountService, verifyUserService } from "../services/auth.service";
+import {
+  loginOrCreateAccountService,
+  verifyUserService,
+} from "../services/auth.service";
+import UserModel from "../models/user.model";
 
 passport.use(
   new GoogleStrategy(
@@ -18,7 +22,13 @@ passport.use(
     },
     async (req: Request, accessToken, refreshToken, profile, done) => {
       try {
-        const { email, sub: googleId, picture } = profile._json;
+        const {
+          email,
+          sub: googleId,
+          picture,
+          given_name,
+          family_name,
+        } = profile._json;
         console.log({ profile, googleId });
         console.log({ googleId });
 
@@ -27,7 +37,8 @@ passport.use(
         }
         const { user } = await loginOrCreateAccountService({
           provider: ProviderEnum.GOOGLE,
-          displayName: profile.displayName,
+          firstName: given_name,
+          lastName: family_name,
           providerId: googleId,
           picture,
           email,
@@ -50,14 +61,21 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const user = await verifyUserService({ email, password});
+        const user = await verifyUserService({ email, password });
         return done(null, user);
-      } catch (error:any) {
-        return done(error, false, {message: error.message});
+      } catch (error: any) {
+        return done(error, false, { message: error.message });
       }
     }
   )
 );
 
-passport.serializeUser((user: any, done) => done(null, user));
-passport.deserializeUser((user: any, done) => done(null, user));
+passport.serializeUser((user: any, done) => done(null, user._id));
+passport.deserializeUser(async (userId: any, done) => {
+  try {
+    const user = await UserModel.findById(userId).lean();
+    done(null, user); // rehydrate the user on every request
+  } catch (err) {
+    done(err, null);
+  }
+});

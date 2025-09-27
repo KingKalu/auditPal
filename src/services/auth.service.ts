@@ -1,21 +1,24 @@
-import mongoose from "mongoose";
+import mongoose, { Date } from "mongoose";
 import UserModel, { UserDocument } from "../models/user.model";
 import AccountModel from "../models/account.model";
 import {
   BadRequestException,
+  ExpireException,
   NotFoundException,
   UnauthorizedException,
 } from "../utils/appError";
 import { ProviderEnum } from "../enums/account-provider.enum";
+import { sendOtpEmail } from "./email.service";
 
 export const loginOrCreateAccountService = async (data: {
   provider: string;
-  displayName: string;
+  firstName?: string;
+  lastName?: string;
   providerId: string;
   picture?: string;
   email?: string;
 }) => {
-  const { providerId, provider, displayName, email, picture } = data;
+  const { providerId, provider, firstName, lastName, email, picture } = data;
 
   const session = await mongoose.startSession();
 
@@ -28,7 +31,8 @@ export const loginOrCreateAccountService = async (data: {
     if (!user) {
       user = new UserModel({
         email,
-        name: displayName,
+        firstName,
+        lastName,
         profilePicture: picture || null,
       });
       await user.save({ session });
@@ -56,10 +60,11 @@ export const loginOrCreateAccountService = async (data: {
 
 export const registerUserService = async (body: {
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   password: string;
 }) => {
-  const { email, name, password } = body;
+  const { email, firstName, lastName, password } = body;
   const session = await mongoose.startSession();
 
   try {
@@ -71,10 +76,12 @@ export const registerUserService = async (body: {
 
     const user = new UserModel({
       email,
-      name,
+      firstName,
+      lastName,
       password,
     });
-    await user.save({ session });
+
+    const savedUser = await user.save({ session });
 
     const account = new AccountModel({
       userId: user._id,
@@ -83,17 +90,46 @@ export const registerUserService = async (body: {
     });
     await account.save({ session });
 
-    await user.save({ session });
+    const { otp, otpExpires } = await sendOtpEmail(email, firstName);
+    savedUser.otp = otp;
+    savedUser.otpExpires = otpExpires;
+    const userData = await savedUser.save({ session });
 
     await session.commitTransaction();
     session.endSession();
     console.log("End Session...");
 
-    return { userId: user._id };
+    return userData.omitPassword();
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     throw error;
+  }
+};
+
+export const verifyEmailService = async (body: {
+  userId?: string;
+  otp: string;
+}) => {
+  const { userId, otp } = body;
+
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new NotFoundException("User not Found");
+  }
+
+  if (user.otpExpires < new Date()) {
+    throw new ExpireException("OTP expired");
+  }
+
+  if (user.otp !== otp) {
+    throw new BadRequestException("OTP does not match");
+  }
+
+  if (Boolean(user)) {
+    user.email_verified = true;
+    return (await user?.save()).omitPassword();
   }
 };
 

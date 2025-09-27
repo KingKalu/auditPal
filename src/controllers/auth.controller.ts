@@ -1,16 +1,19 @@
 import { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
-import { registerSchema } from "../validation/auth.validation";
+import {
+  registerSchema,
+  verifyEmailSchema,
+} from "../validation/auth.validation";
 import { HTTPSTATUS } from "../config/http.config";
-import { registerUserService } from "../services/auth.service";
+import {
+  registerUserService,
+  verifyEmailService,
+} from "../services/auth.service";
 import passport from "passport";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
     const user = req.user;
-
-    console.log({user})
-
     if (!user) {
       return res.status(401).json({ message: "Google authentication failed" });
     }
@@ -23,9 +26,16 @@ export const googleLoginCallback = asyncHandler(
 );
 
 export const registerUserController = asyncHandler(
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const body = registerSchema.parse({ ...req.body });
-    await registerUserService(body);
+
+    const user = await registerUserService(body);
+
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+    });
 
     return res.status(HTTPSTATUS.CREATED).json({
       message: "User created successfully",
@@ -64,6 +74,19 @@ export const loginController = asyncHandler(
         });
       }
     )(req, res, next);
+  }
+);
+
+export const verifyEmailController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { otp } = verifyEmailSchema.parse({ ...req.body });
+    const userId = req?.user?._id;
+    const user = await verifyEmailService({ userId, otp });
+
+    return res.status(HTTPSTATUS.CREATED).json({
+      message: "User verify successfully",
+      user,
+    });
   }
 );
 

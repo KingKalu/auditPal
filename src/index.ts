@@ -27,7 +27,7 @@ app.use(
   session({
     name: "session",
     keys: [config.SESSION_SECRET],
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 60 * 1000,
     secure: config.NODE_ENV === "production",
     httpOnly: true,
     sameSite: "lax",
@@ -41,17 +41,23 @@ app.use(
   cors({
     origin: config.FRONTEND_ORIGIN,
     credentials: true,
-  })  
+  })
 );
 
-app.get("/", asyncHandler( async (req: Request, res: Response, next: NextFunction) => {
-    throw new BadRequestException("This is a bad request", ErrorCodeEnum.AUTH_USER_NOT_FOUND)
-}));
+app.get(
+  "/",
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    throw new BadRequestException(
+      "This is a bad request",
+      ErrorCodeEnum.AUTH_USER_NOT_FOUND
+    );
+  })
+);
 
-app.use(`${BASE_PATH}/auth`, authRoutes)
-app.use(`${BASE_PATH}/user`, isAuthenticated, userRoutes)
-  
-app.use(errorHandler)
+app.use(`${BASE_PATH}/auth`, authRoutes);
+app.use(`${BASE_PATH}/user`, isAuthenticated, userRoutes);
+
+app.use(errorHandler);
 
 app.listen(config.PORT, async () => {
   console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);

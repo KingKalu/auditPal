@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import session from "cookie-session";
 import { config } from "./config/app.config";
 import connectDatabase from "./config/database.config";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
@@ -14,7 +15,6 @@ import passport from "passport";
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
 import isAuthenticated from "./middlewares/isAuthenticated.middleware";
-import session from "express-session";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -26,17 +26,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     name: "session",
-    secret: config.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 60 * 1000,
-      secure: config.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "none",
-      domain: "code-base-six.vercel.app", // only if using a custom domain
-      path: "/", // valid everywhere
-    },
+    keys: [config.SESSION_SECRET],
+    maxAge: 60 * 1000,
+    secure: config.NODE_ENV === "production",
+    httpOnly: true,
+    domain: "code-base-six.vercel.app",
+    path: "/",
+    sameSite: "none",
   })
 );
 

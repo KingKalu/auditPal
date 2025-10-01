@@ -23,12 +23,14 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+console.log("environment", config.NODE_ENV === "production");
+
 app.use(
   session({
     name: "session",
     keys: [config.SESSION_SECRET],
     maxAge: 60 * 1000,
-    secure: config.NODE_ENV === "production",
+    secure: false,
     httpOnly: true,
     sameSite: "none",
   })

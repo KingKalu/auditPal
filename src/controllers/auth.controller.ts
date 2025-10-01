@@ -92,7 +92,7 @@ export const verifyEmailController = asyncHandler(
 );
 
 export const logOutController = asyncHandler(
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     req.logout((err) => {
       if (err) {
         console.error("Logout error:", err);
@@ -100,10 +100,23 @@ export const logOutController = asyncHandler(
           .status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
           .json({ error: "Failed to log out" });
       }
+
+      // Destroy session (express-session way)
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Session destroy error:", err);
+          return res
+            .status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
+            .json({ error: "Failed to destroy session" });
+        }
+
+        // Clear the cookie that holds session ID
+        res.clearCookie("connect.sid"); // 👈 default cookie name unless you set a custom one
+
+        return res
+          .status(HTTPSTATUS.OK)
+          .json({ message: "Logged out successfully." });
+      });
     });
-    req.session = null;
-    return res
-      .status(HTTPSTATUS.OK)
-      .json({ message: "Logged out successfully." });
   }
 );

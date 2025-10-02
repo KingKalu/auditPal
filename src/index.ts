@@ -29,7 +29,6 @@ app.use(
     keys: [config.SESSION_SECRET],
     maxAge: 60 * 1000,
     httpOnly: true,
-    sameSite: "none",
   })
 );
 

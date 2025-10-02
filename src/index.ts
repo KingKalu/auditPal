@@ -28,10 +28,8 @@ app.use(
     name: "session",
     keys: [config.SESSION_SECRET],
     maxAge: 60 * 1000,
-    secure: config.NODE_ENV === "production",
+    secure: true,
     httpOnly: true,
-    domain: "code-base-six.vercel.app",
-    path: "/",
     sameSite: "none",
   })
 );

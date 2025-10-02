@@ -19,8 +19,8 @@ import isAuthenticated from "./middlewares/isAuthenticated.middleware";
 const app = express();
 const BASE_PATH = config.BASE_PATH;
 
+app.set("trust proxy", 1);
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
@@ -30,7 +30,7 @@ app.use(
     maxAge: 60 * 1000,
     httpOnly: true,
     sameSite: "none",
-    secure: true,
+    secure: config.NODE_ENV === "production",
   })
 );
 

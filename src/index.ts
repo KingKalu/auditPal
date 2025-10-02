@@ -28,7 +28,7 @@ app.use(
     name: "session",
     keys: [config.SESSION_SECRET],
     maxAge: 60 * 1000,
-    secure: true,
+    secure: false,
     httpOnly: true,
     sameSite: "none",
   })

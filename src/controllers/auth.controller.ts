@@ -13,15 +13,7 @@ import passport from "passport";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({ message: "Google authentication failed" });
-    }
-
-    return res.status(200).json({
-      message: "Logged in successfully with Google",
-      user,
-    });
+    res.redirect(`${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/dashboard`);
   }
 );
 
@@ -30,12 +22,6 @@ export const registerUserController = asyncHandler(
     const body = registerSchema.parse({ ...req.body });
 
     const user = await registerUserService(body);
-
-    req.login(user, (err) => {
-      if (err) {
-        return next(err);
-      }
-    });
 
     return res.status(HTTPSTATUS.CREATED).json({
       message: "User created successfully",
@@ -102,8 +88,6 @@ export const logOutController = asyncHandler(
       }
     });
     req.session = null;
-    return res
-      .status(HTTPSTATUS.OK)
-      .json({ message: "Logged out successfully." });
+    res.redirect(`${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login`);
   }
 );

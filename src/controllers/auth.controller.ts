@@ -13,7 +13,7 @@ import passport from "passport";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
-    res.redirect(`${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/dashboard`);
+    res.redirect(`${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview`);
   }
 );
 

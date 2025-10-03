@@ -13,7 +13,7 @@ import passport from "passport";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
-    res.redirect(`${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview`);
+    res.send(`<script>window.location.href="${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview";</script>`)
   }
 );
 
@@ -88,6 +88,6 @@ export const logOutController = asyncHandler(
       }
     });
     req.session = null;
-    res.redirect(`${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login`);
+    res.send(`<script>window.location.href="${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login";</script>`)
   }
 );

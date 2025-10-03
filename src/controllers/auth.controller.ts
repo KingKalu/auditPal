@@ -13,7 +13,16 @@ import passport from "passport";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
-    res.send(`<script>window.location.href="${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview";</script>`)
+    res.send(`
+  <html>
+    <head>
+      <script>
+        window.location.href = ${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview;
+      </script>
+    </head>
+    <body></body>
+  </html>
+`);
   }
 );
 
@@ -88,6 +97,15 @@ export const logOutController = asyncHandler(
       }
     });
     req.session = null;
-    res.send(`<script>window.location.href="${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login";</script>`)
+    res.send(`
+  <html>
+    <head>
+      <script>
+        window.location.href = ${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login;
+      </script>
+    </head>
+    <body></body>
+  </html>
+`);
   }
 );

@@ -17,7 +17,7 @@ export const googleLoginCallback = asyncHandler(
   <html>
     <head>
       <script>
-        window.location.href = ${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview;
+        window.location.href = "${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview";
       </script>
     </head>
     <body></body>
@@ -101,7 +101,7 @@ export const logOutController = asyncHandler(
   <html>
     <head>
       <script>
-        window.location.href = ${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login;
+        window.location.href = "${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login";
       </script>
     </head>
     <body></body>

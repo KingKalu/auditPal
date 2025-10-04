@@ -7,7 +7,11 @@ export const getCurrentUserController = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?._id;
 
-    const { user } = await getCurrentUserService(userId);
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+
+    const { user } = await getCurrentUserService(userId.toString());
 
     return res.status(HTTPSTATUS.OK).json({
       message: "User fetch successfully",

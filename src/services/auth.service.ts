@@ -157,5 +157,6 @@ export const verifyUserService = async ({
     throw new UnauthorizedException("Invalid email or password");
   }
 
-  return user.omitPassword();
+  // Return the lean version without password
+  return await UserModel.findById(account.userId).select('-password').lean().exec();
 };

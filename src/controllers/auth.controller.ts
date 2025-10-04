@@ -10,19 +10,12 @@ import {
   verifyEmailService,
 } from "../services/auth.service";
 import passport from "passport";
+import { universalRedirect } from "../utils/universalRedirect";
 
 export const googleLoginCallback = asyncHandler(
   async (req: Request, res: Response) => {
-    res.send(`
-  <html>
-    <head>
-      <script>
-        window.location.href = "${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview";
-      </script>
-    </head>
-    <body></body>
-  </html>
-`);
+    const frontendUrl = `${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/overview`;
+    universalRedirect(res, frontendUrl);
   }
 );
 
@@ -97,15 +90,7 @@ export const logOutController = asyncHandler(
       }
     });
     req.session = null;
-    res.send(`
-  <html>
-    <head>
-      <script>
-        window.location.href = "${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login";
-      </script>
-    </head>
-    <body></body>
-  </html>
-`);
+    const frontendUrl = `${process.env.FRONTEND_GOOGLE_CALLBACK_URL}/login`;
+    universalRedirect(res, frontendUrl);
   }
 );

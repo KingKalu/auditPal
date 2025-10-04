@@ -9,7 +9,7 @@ import {
   loginOrCreateAccountService,
   verifyUserService,
 } from "../services/auth.service";
-import { LeanUser } from "../@types/user.model";
+// import { LeanUser } from "../@types/user.model"; 
 import UserModel from "../models/user.model";
 
 if (
@@ -107,7 +107,7 @@ passport.deserializeUser(async (id: string, done) => {
       return done(new NotFoundException("User not found"), null);
     }
 
-    done(null, user as unknown as LeanUser);
+    done(null, user as unknown as Express.User);
   } catch (err) {
     console.error("Deserialize user error:", err);
     done(err, null);

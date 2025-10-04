@@ -20,7 +20,7 @@ export const sessionConfig: session.SessionOptions = {
         httpOnly: true,
         secure: isProduction,
         sameSite: isProduction ? "none" : "lax",
-        domain: config.COOKIE_DOMAIN || undefined,
+        // domain: config.COOKIE_DOMAIN || undefined,
         path: "/",
     },
     name: "sessionId",

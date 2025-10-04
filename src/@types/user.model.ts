@@ -1,35 +1,78 @@
-import { Schema, model, Types, HydratedDocument } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
+import { compareValue, hashValue } from "../utils/bcrypt";
 
-export interface User {
+export interface UserDocument extends Document {
+    firstName: string;
+    lastName: string;
     email: string;
-    firstName?: string;
-    lastName?: string;
-    picture?: string;
-    email_verified?: boolean;
-}
-
-export interface UserDocument extends User {
-    _id: Types.ObjectId;
     password?: string;
+    profilePicture: string | null;
+    isActive: boolean;
+    lastLogin: Date | null;
+    otp: string;
+    otpExpires: Date;
+    email_verified: boolean;
+    // Password Reset Fields
+    passwordResetToken: string | null;
+    passwordResetExpires: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+    role: string;
+    comparePassword(value: string): Promise<boolean>;
+    omitPassword(): Omit<UserDocument, "password">;
 }
 
-export interface LeanUser {
-    _id: Types.ObjectId;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    picture?: string;
-    email_verified?: boolean;
-}
 
-const UserSchema = new Schema<UserDocument>({
-    email: { type: String, required: true, unique: true },
-    firstName: String,
-    lastName: String,
-    picture: String,
-    email_verified: { type: Boolean, default: false },
-    password: String,
+const userSchema = new Schema<UserDocument>(
+    {
+        firstName: { type: String, required: false, trim: true },
+        lastName: { type: String, required: false, trim: true },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            lowercase: true,
+        },
+        password: { type: String, select: true },
+        profilePicture: { type: String, default: null },
+        isActive: { type: Boolean, default: true },
+        lastLogin: { type: Date, default: null },
+        otp: { type: String, max: 6 },
+        otpExpires: { type: Date, required: false },
+        email_verified: { type: Boolean, default: false },
+        // Password Reset Fields
+        passwordResetToken: { type: String, default: null, select: false },
+        passwordResetExpires: { type: Date, default: null, select: false },
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user",
+        },
+    },
+    { timestamps: true }
+);
+
+userSchema.pre("save", async function (next: () => void) {
+    if (this.isModified("password")) {
+        if (this.password) {
+            this.password = await hashValue(this.password);
+        }
+    }
+    next();
 });
 
-const UserModel = model<UserDocument>('User', UserSchema);
+userSchema.methods.omitPassword = function (): Omit<UserDocument, "password"> {
+    const userObject = this.toObject();
+    delete userObject.password;
+    delete userObject.passwordResetToken;
+    delete userObject.passwordResetExpires;
+    return userObject;
+};
+
+userSchema.methods.comparePassword = async function (value: string) {
+    return compareValue(value, this.password);
+};
+
+const UserModel = mongoose.model<UserDocument>("User", userSchema);
 export default UserModel;

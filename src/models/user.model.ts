@@ -1,3 +1,4 @@
+
 import mongoose, { Document, Schema } from "mongoose";
 import { compareValue, hashValue } from "../utils/bcrypt";
 
@@ -12,6 +13,9 @@ export interface UserDocument extends Document {
   otp: string;
   otpExpires: Date;
   email_verified: boolean;
+  // Password Reset Fields
+  passwordResetToken: string | null;
+  passwordResetExpires: Date | null;
   createdAt: Date;
   updatedAt: Date;
   role: string;
@@ -21,16 +25,8 @@ export interface UserDocument extends Document {
 
 const userSchema = new Schema<UserDocument>(
   {
-    firstName: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      required: false,
-      trim: true,
-    },
+    firstName: { type: String, required: false, trim: true },
+    lastName: { type: String, required: false, trim: true },
     email: {
       type: String,
       required: true,
@@ -39,33 +35,22 @@ const userSchema = new Schema<UserDocument>(
       lowercase: true,
     },
     password: { type: String, select: true },
-    profilePicture: {
-      type: String,
-      default: null,
-    },
+    profilePicture: { type: String, default: null },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
-    otp: {
-      type: String,
-      max: 6,
-    },
-    otpExpires: {
-      type: Date,
-      required: false, // expiration timestamp
-    },
-    email_verified: {
-      type: Boolean,
-      default: false,
-    },
+    otp: { type: String, max: 6 },
+    otpExpires: { type: Date, required: false },
+    email_verified: { type: Boolean, default: false },
+    // Password Reset Fields
+    passwordResetToken: { type: String, default: null, select: false },
+    passwordResetExpires: { type: Date, default: null, select: false },
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 userSchema.pre("save", async function (next) {
@@ -80,6 +65,8 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.omitPassword = function (): Omit<UserDocument, "password"> {
   const userObject = this.toObject();
   delete userObject.password;
+  delete userObject.passwordResetToken;
+  delete userObject.passwordResetExpires;
   return userObject;
 };
 

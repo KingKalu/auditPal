@@ -5,7 +5,8 @@ const appConfig = () => ({
   PORT: getEnv("PORT", "5000"),
   BASE_PATH: getEnv("BASE_PATH", "/api"),
   MONGO_URI: getEnv("MONGO_URI",),
-
+  BACKEND_URL: getEnv('BACKEND_URL', 'http://localhost:5000'),
+  
   SESSION_SECRET: getEnv("SESSION_SECRET"),
   SESSION_EXPIRES_IN: getEnv("SESSION_EXPIRES_IN"),
   COOKIE_DOMAIN: getEnv("COOKIE_DOMAIN", undefined),

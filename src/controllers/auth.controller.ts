@@ -153,7 +153,7 @@ export const logOutController = asyncHandler(
           httpOnly: true,
           secure: config.NODE_ENV === "production",
           sameSite: config.NODE_ENV === "production" ? "none" : "lax",
-          domain: config.COOKIE_DOMAIN || undefined,
+          // domain: config.COOKIE_DOMAIN || undefined,
           path: "/",
         });
 

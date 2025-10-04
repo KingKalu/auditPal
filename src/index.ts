@@ -27,7 +27,7 @@ app.use(
   session({
     name: "session",
     keys: [config.SESSION_SECRET],
-    maxAge: 60 * 1000,
+    maxAge: 10 * 60 * 1000,
     httpOnly: true,
     sameSite: "none",
     secure: config.NODE_ENV === "production",

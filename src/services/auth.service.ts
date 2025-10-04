@@ -8,7 +8,8 @@ import {
   UnauthorizedException,
 } from "../utils/appError";
 import { ProviderEnum } from "../enums/account-provider.enum";
-import { sendOtpEmail } from "./email.service";
+import { getTemplate } from "../utils/getTemplate";
+import { sendEmail } from "./email.service";
 
 export const loginOrCreateAccountService = async (data: {
   provider: string;
@@ -90,7 +91,12 @@ export const registerUserService = async (body: {
     });
     await account.save({ session });
 
-    // const { otp, otpExpires } = await sendOtpEmail(email, firstName);
+    // const { template, otp, otpExpires } = getTemplate("verify-email-otp.html");
+
+    // await sendEmail(
+    //   email,
+    //   template.replace("{{USERNAME}}", firstName).replace("{{OTP_CODE}}", otp)
+    // );
     // savedUser.otp = otp;
     // savedUser.otpExpires = otpExpires;
     const userData = await savedUser.save({ session });
@@ -107,13 +113,13 @@ export const registerUserService = async (body: {
   }
 };
 
-export const verifyEmailService = async (body: {
-  userId?: string;
+export const verifyOtpService = async (body: {
+  email?: string;
   otp: string;
 }) => {
-  const { userId, otp } = body;
+  const { email, otp } = body;
 
-  const user = await UserModel.findById(userId);
+  const user = await UserModel.findOne({ email });
 
   if (!user) {
     throw new NotFoundException("User not Found");

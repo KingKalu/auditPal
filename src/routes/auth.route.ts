@@ -2,10 +2,13 @@ import { Router } from "express";
 import passport from "passport";
 import { config } from "../config/app.config";
 import {
+  forgetPassword,
   googleLoginCallback,
   loginController,
   logOutController,
   registerUserController,
+  resendOtp,
+  resetPassword,
   verifyEmailController,
 } from "../controllers/auth.controller";
 import loginLimiter from "../middlewares/loginLimiter";
@@ -18,6 +21,9 @@ authRoutes.post("/register", registerUserController);
 authRoutes.post("/login", loginLimiter, loginController);
 authRoutes.post("/verify-email", verifyEmailController);
 authRoutes.post("/logout", logOutController);
+authRoutes.post("/resend-otp", resendOtp);
+authRoutes.post("/forget-password", forgetPassword);
+authRoutes.post("/reset-password", resetPassword);
 
 authRoutes.get(
   "/google",

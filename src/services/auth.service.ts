@@ -69,7 +69,8 @@ export const registerUserService = async (body: {
 
   try {
     session.startTransaction();
-    const existingUser = await UserModel.findOne({ email }).session(session);
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingUser = await UserModel.findOne({ email: normalizedEmail }).session(session);
     if (existingUser) {
       throw new BadRequestException("Email already exists");
     }

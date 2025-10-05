@@ -1,4 +1,3 @@
-
 import mongoose, { Document, Schema } from "mongoose";
 import { compareValue, hashValue } from "../utils/bcrypt";
 
@@ -22,6 +21,7 @@ export interface UserDocument extends Document {
   comparePassword(value: string): Promise<boolean>;
   omitPassword(): Omit<UserDocument, "password">;
 }
+
 
 const userSchema = new Schema<UserDocument>(
   {
@@ -53,7 +53,7 @@ const userSchema = new Schema<UserDocument>(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (next: () => void) {
   if (this.isModified("password")) {
     if (this.password) {
       this.password = await hashValue(this.password);

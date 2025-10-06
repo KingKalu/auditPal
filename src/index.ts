@@ -15,6 +15,7 @@ import passport from "passport";
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
 import isAuthenticated from "./middlewares/isAuthenticated.middleware";
+import { addPartitionFlag } from "./middlewares/addPartitionFlag";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -22,6 +23,8 @@ const BASE_PATH = config.BASE_PATH;
 app.set("trust proxy", 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(addPartitionFlag);
 
 app.use(
   session({
@@ -33,31 +36,6 @@ app.use(
     secure: config.NODE_ENV === "production",
   })
 );
-
-// Middleware to add the Partitioned flag to cookies
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const header = res.getHeader("Set-Cookie");
-
-  if (!header) return next();
-
-  // Convert the header into a string array only
-  const cookieArray: string[] = Array.isArray(header)
-    ? header.filter((item): item is string => typeof item === "string")
-    : typeof header === "string"
-    ? [header]
-    : [];
-
-  // Ensure all cookies include the Partitioned flag
-  const updatedCookies: string[] = cookieArray.map((cookie) =>
-    cookie.includes("Partitioned") ? cookie : `${cookie}; Partitioned`
-  );
-
-  // Set the updated cookies back
-  res.setHeader("Set-Cookie", updatedCookies);
-
-  next();
-});
-
 app.use(passport.initialize());
 app.use(passport.session());
 

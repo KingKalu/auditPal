@@ -31,7 +31,7 @@ app.use(
     httpOnly: true,
     sameSite: "none",
     secure: config.NODE_ENV === "production",
-    partitioned: true,
+    partitioned: config.NODE_ENV === "production",
   })
 );
 app.use(passport.initialize());
